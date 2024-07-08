@@ -1,18 +1,18 @@
-import { getAuth} from "firebase/auth";
-// import {
+import { getAuth, updateProfile} from "firebase/auth";
+import {
 //   collection,
 //   deleteDoc,
-//   doc,
+  doc,
 //   getDocs,
 //   orderBy,
 //   query,
-//   updateDoc,
+  updateDoc,
 //   where,
-// } from "firebase/firestore";
+} from "firebase/firestore";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
-// import { db } from "../firebase";
+import { toast } from "react-toastify";
+import { db } from "../firebase";
 // import { FcHome } from "react-icons/fc";
 // import { useEffect } from "react";
 // import ListingItem from "../components/ListingItem";
@@ -20,7 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Profile() {
   const auth = getAuth();
   const navigate = useNavigate();
-//   const [changeDetail, setChangeDetail] = useState(false);
+  const [changeDetail, setChangeDetail] = useState(false);
 //   const [listings, setListings] = useState(null);
 //   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -32,32 +32,35 @@ export default function Profile() {
     auth.signOut();
     navigate("/");
   }
-//   function onChange(e) {
-//     setFormData((prevState) => ({
-//       ...prevState,
-//       [e.target.id]: e.target.value,
-//     }));
-//   }
-//   async function onSubmit() {
-//     try {
-//       if (auth.currentUser.displayName !== name) {
-//         //update display name in firebase auth
-//         await updateProfile(auth.currentUser, {
-//           displayName: name,
-//         });
 
-//         // update name in the firestore
+  function onChange(e) {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  }
 
-//         const docRef = doc(db, "users", auth.currentUser.uid);
-//         await updateDoc(docRef, {
-//           name,
-//         });
-//       }
-//       toast.success("Profile details updated");
-//     } catch (error) {
-//       toast.error("Could not update the profile details");
-//     }
-//   }
+  async function onSubmit() {
+    try {
+      if (auth.currentUser.displayName !== name) {
+        //update display name in firebase auth
+        await updateProfile(auth.currentUser, {
+          displayName: name,
+        });
+
+        // update name in the firestore
+
+        const docRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(docRef, {
+          name,
+        });
+      }
+      toast.success("Profile details updated");
+    } catch (error) {
+      toast.error("Could not update the profile details");
+    }
+  }
+
 //   useEffect(() => {
 //     async function fetchUserListings() {
 //       const listingRef = collection(db, "listings");
@@ -104,10 +107,10 @@ export default function Profile() {
               type="text"
               id="name"
               value={name}
-              // disabled={!changeDetail}
-              // onChange={onChange}
+              disabled={!changeDetail}
+              onChange={onChange}
               className={`mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition ease-in-out ${
-                // changeDetail &&
+                 changeDetail &&
                  "bg-red-200 focus:bg-red-200"
               }`}
             />
@@ -125,7 +128,15 @@ export default function Profile() {
             <div className="flex justify-between whitespace-nowrap text-sm sm:text-lg mb-6">
               <p className="flex items-center ">
                 Do you want to change your name?
-                 <span>Edit</span>
+                 <span
+                  onClick={() => {
+                    changeDetail && onSubmit();
+                    setChangeDetail((prevState) => !prevState);
+                  }}
+                  className="text-red-600 hover:text-red-700 transition ease-in-out duration-200 ml-1 cursor-pointer"
+                >
+                  {changeDetail ? "Apply change" : "Edit"}
+                </span>
               </p>
 
               <p
